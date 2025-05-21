@@ -166,6 +166,143 @@
         .spinner-border {
             color: var(--primary-green);
         }
+
+        /* Add table styles */
+        .table {
+            width: 100%;
+            margin-bottom: 1rem;
+            background-color: transparent;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            vertical-align: top;
+            border-top: 1px solid #dee2e6;
+            text-align: left;
+        }
+
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #dee2e6;
+            background-color: var(--primary-green);
+            color: white;
+        }
+
+        .table tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--pale-green);
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: var(--pale-green);
+        }
+
+        /* Add responsive table styles */
+        .table-responsive {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 2rem;
+        }
+
+        /* Add specific column widths */
+        .table th:nth-child(1), /* Country column */
+        .table td:nth-child(1) {
+            width: 20%;
+        }
+
+        .table th:nth-child(2), /* R² Score column */
+        .table td:nth-child(2) {
+            width: 15%;
+        }
+
+        .table th:nth-child(3), /* RMSE column */
+        .table td:nth-child(3) {
+            width: 15%;
+        }
+
+        .table th:nth-child(4), /* Prediction Uncertainty column */
+        .table td:nth-child(4) {
+            width: 15%;
+        }
+
+        .table th:nth-child(5), /* Data Completeness column */
+        .table td:nth-child(5) {
+            width: 15%;
+        }
+
+        .table th:nth-child(6), /* Temperature Stability column */
+        .table td:nth-child(6) {
+            width: 15%;
+        }
+
+        .table th:nth-child(7), /* Valid Data Points column */
+        .table td:nth-child(7) {
+            width: 10%;
+        }
+
+        .table th:nth-child(8), /* Total Years column */
+        .table td:nth-child(8) {
+            width: 10%;
+        }
+
+        /* Add number formatting styles */
+        .table td {
+            font-family: monospace;
+            text-align: right;
+        }
+
+        .table td:first-child {
+            text-align: left;
+            font-family: inherit;
+        }
+
+        /* Add table container styles */
+        #accuracyTable {
+            margin-top: 1rem;
+            overflow-x: auto;
+        }
+
+        /* Add summary section styles */
+        #accuracySummary {
+            background-color: var(--pale-green);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        #accuracySummary .prediction-item {
+            border: none;
+            padding: 0.5rem;
+        }
+
+        #accuracySummary .row {
+            margin-bottom: 0.5rem;
+        }
+
+        #accuracySummary strong {
+            color: var(--dark-green);
+        }
+
+        #regional-table th, #regional-table td {
+            padding: 0.75rem;
+            vertical-align: middle;
+        }
+
+        #regional-table tr:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+            cursor: help;
+        }
     </style>
 </head>
 <body>
@@ -184,8 +321,7 @@
             </div>
             <div class="card-body">
                 <p class="explanation">
-                    This tool predicts how much the temperature will change in the future for a selected country.
-                    The prediction is based on historical temperature data from 1961 to 2022.
+                    This tool predicts temperature changes for a selected country. You can either predict changes for a specific year or for a range of years ahead.
                 </p>
                 <div class="row">
                     <div class="col-md-6">
@@ -195,39 +331,34 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label for="yearsAhead" class="form-label">Years to Predict:</label>
-                        <input type="number" id="yearsAhead" class="form-control" placeholder="Years ahead" value="5" min="1" max="50">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="predictionType" id="specificYear" value="specific">
+                            <label class="form-check-label" for="specificYear">
+                                Predict for Specific Year
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="predictionType" id="yearsAhead" value="ahead" checked>
+                            <label class="form-check-label" for="yearsAhead">
+                                Predict Years Ahead
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="predictFuture()">Predict Future Changes</button>
-                <div id="futureResult" class="result-box mt-3"></div>
-            </div>
-        </div>
-
-        <!-- Year Prediction -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Predict Temperature for a Specific Year</h5>
-            </div>
-            <div class="card-body">
-                <p class="explanation">
-                    This tool predicts the temperature change for a selected country in a specific future year.
-                    The prediction is based on historical trends and patterns.
-                </p>
-                <div class="row">
-                    <div class="col-md-6">
-                        <label for="yearCountrySelect" class="form-label">Select Country:</label>
-                        <select id="yearCountrySelect" class="form-select mb-3">
-                            <option value="">Select a country...</option>
-                        </select>
-                    </div>
+                <div class="row" id="specificYearInput" style="display: none;">
                     <div class="col-md-6">
                         <label for="targetYear" class="form-label">Target Year:</label>
                         <input type="number" id="targetYear" class="form-control" placeholder="Target year" value="2030" min="2023">
                     </div>
                 </div>
-                <button class="btn btn-primary mt-3" onclick="predictYear()">Predict for Year</button>
-                <div id="yearResult" class="result-box mt-3"></div>
+                <div class="row" id="yearsAheadInput">
+                    <div class="col-md-6">
+                        <label for="yearsAhead" class="form-label">Years to Predict:</label>
+                        <input type="number" id="yearsAheadNumberInput" class="form-control" placeholder="Years ahead" value="5" min="1" max="50">
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-3" onclick="predictFuture()">Predict Temperature Changes</button>
+                <div id="futureResult" class="result-box mt-3"></div>
             </div>
         </div>
 
@@ -258,9 +389,59 @@
             </div>
         </div>
 
+        <!-- Model Accuracy -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Model Accuracy Metrics</h5>
+            </div>
+            <div class="card-body">
+                <p class="explanation">
+                    This section shows the accuracy metrics for all country-specific prediction models.
+                    Higher R² scores indicate better model fit, while lower RMSE values indicate more accurate predictions.
+                </p>
+                <button class="btn btn-primary mb-3" onclick="showModelAccuracy()">Show Model Accuracy</button>
+                <div id="accuracyResult" class="result-box mt-3">
+                    <div id="accuracySummary" class="mb-3"></div>
+                    <div id="accuracy-table-container"></div>
+                </div>
+            </div>
+        </div>
+
         <div id="loading" class="loading">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <h2 class="mt-4">Regional Analysis</h2>
+        <div id="regional-analysis-container"></div>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">High Accuracy Countries</h5>
+                        <p class="card-text" id="high-accuracy-count"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Medium Accuracy Countries</h5>
+                        <p class="card-text" id="medium-accuracy-count"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Low Accuracy Countries</h5>
+                        <p class="card-text" id="low-accuracy-count"></p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -292,7 +473,7 @@
                 
                 // Update country select options
                 const countries = data.countries;
-                const countrySelects = ['countrySelect', 'classifyCountrySelect', 'yearCountrySelect'];
+                const countrySelects = ['countrySelect', 'classifyCountrySelect'];
                 countrySelects.forEach(selectId => {
                     const select = document.getElementById(selectId);
                     select.innerHTML = '<option value="">Select a country...</option>';
@@ -306,10 +487,21 @@
             hideLoading();
         }
 
-        // Predict future temperatures
+        // Add event listeners for prediction type radio buttons
+        document.getElementById('specificYear').addEventListener('change', function() {
+            document.getElementById('specificYearInput').style.display = 'block';
+            document.getElementById('yearsAheadInput').style.display = 'none';
+        });
+
+        document.getElementById('yearsAhead').addEventListener('change', function() {
+            document.getElementById('specificYearInput').style.display = 'none';
+            document.getElementById('yearsAheadInput').style.display = 'block';
+        });
+
+        // Update predictFuture function to handle both prediction types
         async function predictFuture() {
             const country = document.getElementById('countrySelect').value;
-            const yearsAhead = document.getElementById('yearsAhead').value;
+            const predictionType = document.querySelector('input[name="predictionType"]:checked').value;
             
             if (!country) {
                 alert('Please select a country');
@@ -318,124 +510,127 @@
 
             showLoading();
             try {
-                const response = await fetch(`${API_BASE_URL}/predict_future`, {
+                let endpoint, requestBody;
+                
+                if (predictionType === 'specific') {
+                    const year = document.getElementById('targetYear').value;
+                    if (!year) {
+                        alert('Please enter a target year');
+                        return;
+                    }
+                    endpoint = '/predict_year';
+                    requestBody = { 
+                        year: parseInt(year),
+                        country: country 
+                    };
+                } else {
+                    const yearsAheadInput = document.getElementById('yearsAheadNumberInput');
+                    const yearsAheadValue = parseInt(yearsAheadInput.value);
+                    
+                    // Ensure yearsAheadValue is a valid number, default to 5 if not
+                    const yearsAhead = isNaN(yearsAheadValue) ? 5 : yearsAheadValue;
+
+                    endpoint = '/predict_future';
+                    requestBody = { 
+                        country, 
+                        years_ahead: yearsAhead
+                    };
+                }
+
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ country, years_ahead: parseInt(yearsAhead) })
+                    body: JSON.stringify(requestBody)
                 });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to get predictions');
+                }
+                
                 const data = await response.json();
                 
-                const confidenceClass = `confidence-${data.confidence_level.toLowerCase()}`;
+                const confidenceClass = `confidence-${(data.confidence_level || 'low').toLowerCase()}`;
                 
-                let html = `
-                    <h6>Predictions for ${data.country}:</h6>
+                let html = '';
+                if (predictionType === 'specific') {
+                    html = `
+                        <h6>Prediction for ${data.country} in ${data.year}:</h6>
+                        <div class="prediction-item">
+                            Expected Temperature Change: ${formatTemperatureChange(data.predictions[data.year] || 0)}
+                        </div>
+                    `;
+                } else {
+                    html = `
+                        <h6>Predictions for ${data.country}:</h6>
+                        <div class="prediction-item">
+                            Year-by-Year Predictions:
+                        </div>
+                    `;
+                    for (const [year, temp] of Object.entries(data.predictions || {})) {
+                        html += `
+                            <div class="prediction-item">
+                                Year ${year}: ${formatTemperatureChange(temp || 0)}
+                            </div>
+                        `;
+                    }
+                }
+                
+                html += `
                     <div class="prediction-item">
-                        Confidence Level: <span class="${confidenceClass}">${data.confidence_level} (${data.confidence.toFixed(1)}%)</span>
+                        Confidence Level: <span class="${confidenceClass}">${data.confidence_level || 'Low'} (${(data.confidence || 0).toFixed(1)}%)</span>
                         <div class="confidence-info">
                             Note: Confidence naturally decreases for predictions further into the future due to increasing uncertainty in long-term climate factors.
                         </div>
                     </div>
                     <div class="data-quality">
                         <div class="data-quality-item">
-                            Data Completeness: ${data.data_quality.completeness.toFixed(1)}%
+                            Data Completeness: ${(data.data_quality?.completeness || 0).toFixed(1)}%
                             <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: ${data.data_quality.completeness}%"></div>
+                                <div class="progress-bar" role="progressbar" style="width: ${(data.data_quality?.completeness || 0)}%"></div>
                             </div>
                         </div>
                         <div class="data-quality-item">
-                            Temperature Stability: ${data.data_quality.stability.toFixed(1)}%
+                            Temperature Stability: ${(data.data_quality?.stability || 0).toFixed(1)}%
                             <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: ${data.data_quality.stability}%"></div>
+                                <div class="progress-bar" role="progressbar" style="width: ${(data.data_quality?.stability || 0)}%"></div>
                             </div>
                         </div>
                         <div class="data-quality-item">
-                            Available Data: ${data.data_quality.valid_data_points} out of ${data.data_quality.total_years} years
+                            Available Data: ${data.data_quality?.valid_data_points || 0} out of ${data.data_quality?.total_years || 0} years
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <h6>Year-by-Year Predictions:</h6>
                 `;
                 
-                for (const [year, temp] of Object.entries(data.predictions)) {
+                if (data.model_metrics) {
                     html += `
-                        <div class="prediction-item">
-                            Year ${year}: ${formatTemperatureChange(temp)}
+                        <div class="model-metrics mt-3">
+                            <h6>Model Performance Metrics:</h6>
+                            <div class="prediction-item">
+                                R² Score: ${((data.model_metrics.r2_score || 0) * 100).toFixed(1)}%
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: ${(data.model_metrics.r2_score || 0) * 100}%"></div>
+                                </div>
+                            </div>
+                            <div class="prediction-item">
+                                Root Mean Square Error: ${(data.model_metrics.rmse || 0).toFixed(2)}°C
+                            </div>
+                            <div class="prediction-item">
+                                Prediction Uncertainty: ±${(data.model_metrics.prediction_uncertainty || 0).toFixed(2)}°C
+                            </div>
                         </div>
                     `;
                 }
-                html += '</div>';
+                
                 document.getElementById('futureResult').innerHTML = html;
             } catch (error) {
-                document.getElementById('futureResult').innerHTML = 'Error: Could not get predictions. Please try again.';
-            }
-            hideLoading();
-        }
-
-        // Predict temperature for specific year
-        async function predictYear() {
-            const country = document.getElementById('yearCountrySelect').value;
-            const year = document.getElementById('targetYear').value;
-            
-            if (!country) {
-                alert('Please select a country');
-                return;
-            }
-            if (!year) {
-                alert('Please enter a target year');
-                return;
-            }
-
-            showLoading();
-            try {
-                const response = await fetch(`${API_BASE_URL}/predict_year`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        year: parseInt(year),
-                        country: country 
-                    })
-                });
-                const data = await response.json();
-                
-                const confidenceClass = `confidence-${data.confidence_level.toLowerCase()}`;
-                const yearsAhead = data.year - new Date().getFullYear();
-                
-                let html = `
-                    <h6>Prediction for ${data.country} in ${data.year}:</h6>
-                    <div class="prediction-item">
-                        Expected Temperature Change: ${formatTemperatureChange(data.predictions[data.country])}
-                    </div>
-                    <div class="prediction-item">
-                        Confidence Level: <span class="${confidenceClass}">${data.confidence_level} (${data.confidence.toFixed(1)}%)</span>
-                        <div class="confidence-info">
-                            Note: This prediction is for ${yearsAhead} years in the future. Confidence decreases with time due to increasing uncertainty in long-term climate factors.
-                        </div>
-                    </div>
-                    <div class="data-quality">
-                        <div class="data-quality-item">
-                            Data Completeness: ${data.data_quality.completeness.toFixed(1)}%
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: ${data.data_quality.completeness}%"></div>
-                            </div>
-                        </div>
-                        <div class="data-quality-item">
-                            Temperature Stability: ${data.data_quality.stability.toFixed(1)}%
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: ${data.data_quality.stability}%"></div>
-                            </div>
-                        </div>
-                        <div class="data-quality-item">
-                            Available Data: ${data.data_quality.valid_data_points} out of ${data.data_quality.total_years} years
-                        </div>
+                document.getElementById('futureResult').innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Error:</strong> ${error.message}
                     </div>
                 `;
-                document.getElementById('yearResult').innerHTML = html;
-            } catch (error) {
-                document.getElementById('yearResult').innerHTML = 'Error: Could not get prediction. Please try again.';
             }
             hideLoading();
         }
@@ -486,18 +681,18 @@
                     </div>
                     <div class="data-quality">
                         <div class="data-quality-item">
-                            Data Completeness: ${data.data_quality.completeness.toFixed(1)}%
+                            Data Completeness: ${(data.data_quality.completeness || 0).toFixed(1)}%
                             <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: ${data.data_quality.completeness}%"></div>
+                                <div class="progress-bar" role="progressbar" style="width: ${(data.data_quality.completeness || 0)}%"></div>
                             </div>
                         </div>
                         <div class="data-quality-item">
-                            Temperature Stability: ${data.data_quality.stability.toFixed(1)}%
+                            Temperature Stability: ${(data.data_quality.stability || 0).toFixed(1)}%
                             <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: ${data.data_quality.stability}%"></div>
+                                <div class="progress-bar" role="progressbar" style="width: ${(data.data_quality.stability || 0)}%"></div>
                             </div>
                         </div>
-                        <div class="data-quality-item">
+                        <div class="data_quality-item">
                             Available Data: ${data.data_quality.valid_data_points} out of ${data.data_quality.total_years} years
                         </div>
                     </div>
@@ -507,6 +702,103 @@
                 document.getElementById('classifyResult').innerHTML = 'Error: Could not get classification. Please try again.';
             }
             hideLoading();
+        }
+
+        // Show model accuracy metrics
+        async function showModelAccuracy() {
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE_URL}/model_accuracy`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to load accuracy metrics');
+                }
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Display summary
+                const summaryHtml = `
+                    <div class="prediction-item">
+                        <h6>Model Performance Summary:</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="prediction-item">
+                                    <strong>Total Countries:</strong> ${data.summary.total_countries}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="prediction-item">
+                                    <strong>Average R² Score:</strong> ${data.summary.avg_r2_score.toFixed(2)}%
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="prediction-item">
+                                    <strong>Average RMSE:</strong> ${data.summary.avg_rmse.toFixed(2)}°C
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-4">
+                                <div class="prediction-item">
+                                    <strong>High Accuracy Countries:</strong> ${data.summary.high_accuracy_countries}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="prediction-item">
+                                    <strong>Medium Accuracy Countries:</strong> ${data.summary.medium_accuracy_countries}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="prediction-item">
+                                    <strong>Low Accuracy Countries:</strong> ${data.summary.low_accuracy_countries}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('accuracySummary').innerHTML = summaryHtml;
+                
+                // Display table
+                displayAccuracyMetrics(data);
+            } catch (error) {
+                document.getElementById('accuracyResult').innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+            hideLoading();
+        }
+
+        function displayAccuracyMetrics(data) {
+            document.getElementById('accuracy-table-container').innerHTML = data.html_table;
+            document.getElementById('regional-analysis-container').innerHTML = data.summary.regional_analysis;
+            document.getElementById('high-accuracy-count').textContent = data.summary.high_accuracy_countries;
+            document.getElementById('medium-accuracy-count').textContent = data.summary.medium_accuracy_countries;
+            document.getElementById('low-accuracy-count').textContent = data.summary.low_accuracy_countries;
+            
+            // Add tooltips for regional analysis
+            const regionalTable = document.getElementById('regional-table');
+            if (regionalTable) {
+                const rows = regionalTable.getElementsByTagName('tr');
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    const region = cells[0].textContent;
+                    const r2Mean = parseFloat(cells[1].textContent);
+                    const r2Std = parseFloat(cells[2].textContent);
+                    const dataCompleteness = parseFloat(cells[4].textContent);
+                    
+                    let tooltipText = `Region: ${region}\n`;
+                    tooltipText += `Average R² Score: ${r2Mean}%\n`;
+                    tooltipText += `R² Score Variation: ${r2Std}%\n`;
+                    tooltipText += `Data Completeness: ${dataCompleteness}%`;
+                    
+                    rows[i].title = tooltipText;
+                }
+            }
         }
 
         // Load countries on page load
