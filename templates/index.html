@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Change Predictions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --light-green: #4CAF50;
+            --pale-green: #E8F5E9;
+            --accent-green: #81C784;
+            --dark-green: #1B5E20;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background-color: var(--primary-green);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1rem;
+        }
+
+        .card-body {
+            background-color: white;
+            border-radius: 0 0 15px 15px;
+            padding: 1.5rem;
+        }
+
+        .result-box {
+            background-color: var(--pale-green);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+            border: 1px solid var(--accent-green);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .explanation {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .prediction-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .prediction-item:hover {
+            background-color: var(--pale-green);
+        }
+
+        .prediction-item:last-child {
+            border-bottom: none;
+        }
+
+        .temperature-change {
+            font-weight: bold;
+        }
+
+        .positive {
+            color: #d32f2f;
+        }
+
+        .negative {
+            color: var(--primary-green);
+        }
+
+        .confidence-high {
+            color: var(--primary-green);
+        }
+
+        .confidence-medium {
+            color: var(--light-green);
+        }
+
+        .confidence-low {
+            color: #d32f2f;
+        }
+
+        .confidence-info {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .data-quality {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .data-quality-item {
+            margin-bottom: 5px;
+        }
+
+        .progress {
+            height: 8px;
+            margin-top: 5px;
+            background-color: #e9ecef;
+        }
+
+        .progress-bar {
+            background-color: var(--light-green);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-green);
+            border-color: var(--primary-green);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-green);
+            border-color: var(--dark-green);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+        }
+
+        .form-label {
+            color: var(--dark-green);
+            font-weight: 500;
+        }
+
+        .spinner-border {
+            color: var(--primary-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <div class="container">
+            <h1 class="text-center mb-0">Climate Change Predictions</h1>
+            <p class="text-center mb-0 mt-2">Analyze and predict temperature changes across countries</p>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Future Predictions -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Predict Future Temperature Changes</h5>
+            </div>
+            <div class="card-body">
+                <p class="explanation">
+                    This tool predicts how much the temperature will change in the future for a selected country.
+                    The prediction is based on historical temperature data from 1961 to 2022.
+                </p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="countrySelect" class="form-label">Select Country:</label>
+                        <select id="countrySelect" class="form-select mb-3">
+                            <option value="">Select a country...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="yearsAhead" class="form-label">Years to Predict:</label>
+                        <input type="number" id="yearsAhead" class="form-control" placeholder="Years ahead" value="5" min="1" max="50">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="predictFuture()">Predict Future Changes</button>
+                <div id="futureResult" class="result-box mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Year Prediction -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Predict Temperature for a Specific Year</h5>
+            </div>
+            <div class="card-body">
+                <p class="explanation">
+                    This tool predicts the temperature change for a selected country in a specific future year.
+                    The prediction is based on historical trends and patterns.
+                </p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="yearCountrySelect" class="form-label">Select Country:</label>
+                        <select id="yearCountrySelect" class="form-select mb-3">
+                            <option value="">Select a country...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="targetYear" class="form-label">Target Year:</label>
+                        <input type="number" id="targetYear" class="form-control" placeholder="Target year" value="2030" min="2023">
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-3" onclick="predictYear()">Predict for Year</button>
+                <div id="yearResult" class="result-box mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Country Classification -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Check Temperature Change Status</h5>
+            </div>
+            <div class="card-body">
+                <p class="explanation">
+                    This tool checks if a country's temperature change is above a critical threshold.
+                    A temperature increase above 2°C is considered dangerous for climate change.
+                </p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="classifyCountrySelect" class="form-label">Select Country:</label>
+                        <select id="classifyCountrySelect" class="form-select mb-3">
+                            <option value="">Select a country...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="threshold" class="form-label">Temperature Threshold (°C):</label>
+                        <input type="number" id="threshold" class="form-control" placeholder="Temperature threshold" value="2.0" step="0.1">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="classifyCountry()">Check Status</button>
+                <div id="classifyResult" class="result-box mt-3"></div>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000';
+
+        // Show/hide loading spinner
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // Format temperature change with color
+        function formatTemperatureChange(temp) {
+            const color = temp > 0 ? 'positive' : 'negative';
+            const sign = temp > 0 ? '+' : '';
+            return `<span class="temperature-change ${color}">${sign}${temp.toFixed(2)}°C</span>`;
+        }
+
+        // Get countries list
+        async function getCountries() {
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE_URL}/get_countries`);
+                const data = await response.json();
+                
+                // Update country select options
+                const countries = data.countries;
+                const countrySelects = ['countrySelect', 'classifyCountrySelect', 'yearCountrySelect'];
+                countrySelects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    select.innerHTML = '<option value="">Select a country...</option>';
+                    countries.forEach(country => {
+                        select.innerHTML += `<option value="${country}">${country}</option>`;
+                    });
+                });
+            } catch (error) {
+                alert('Error loading countries. Please try again.');
+            }
+            hideLoading();
+        }
+
+        // Predict future temperatures
+        async function predictFuture() {
+            const country = document.getElementById('countrySelect').value;
+            const yearsAhead = document.getElementById('yearsAhead').value;
+            
+            if (!country) {
+                alert('Please select a country');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE_URL}/predict_future`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ country, years_ahead: parseInt(yearsAhead) })
+                });
+                const data = await response.json();
+                
+                const confidenceClass = `confidence-${data.confidence_level.toLowerCase()}`;
+                
+                let html = `
+                    <h6>Predictions for ${data.country}:</h6>
+                    <div class="prediction-item">
+                        Confidence Level: <span class="${confidenceClass}">${data.confidence_level} (${data.confidence.toFixed(1)}%)</span>
+                        <div class="confidence-info">
+                            Note: Confidence naturally decreases for predictions further into the future due to increasing uncertainty in long-term climate factors.
+                        </div>
+                    </div>
+                    <div class="data-quality">
+                        <div class="data-quality-item">
+                            Data Completeness: ${data.data_quality.completeness.toFixed(1)}%
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: ${data.data_quality.completeness}%"></div>
+                            </div>
+                        </div>
+                        <div class="data-quality-item">
+                            Temperature Stability: ${data.data_quality.stability.toFixed(1)}%
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: ${data.data_quality.stability}%"></div>
+                            </div>
+                        </div>
+                        <div class="data-quality-item">
+                            Available Data: ${data.data_quality.valid_data_points} out of ${data.data_quality.total_years} years
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h6>Year-by-Year Predictions:</h6>
+                `;
+                
+                for (const [year, temp] of Object.entries(data.predictions)) {
+                    html += `
+                        <div class="prediction-item">
+                            Year ${year}: ${formatTemperatureChange(temp)}
+                        </div>
+                    `;
+                }
+                html += '</div>';
+                document.getElementById('futureResult').innerHTML = html;
+            } catch (error) {
+                document.getElementById('futureResult').innerHTML = 'Error: Could not get predictions. Please try again.';
+            }
+            hideLoading();
+        }
+
+        // Predict temperature for specific year
+        async function predictYear() {
+            const country = document.getElementById('yearCountrySelect').value;
+            const year = document.getElementById('targetYear').value;
+            
+            if (!country) {
+                alert('Please select a country');
+                return;
+            }
+            if (!year) {
+                alert('Please enter a target year');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE_URL}/predict_year`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        year: parseInt(year),
+                        country: country 
+                    })
+                });
+                const data = await response.json();
+                
+                const confidenceClass = `confidence-${data.confidence_level.toLowerCase()}`;
+                const yearsAhead = data.year - new Date().getFullYear();
+                
+                let html = `
+                    <h6>Prediction for ${data.country} in ${data.year}:</h6>
+                    <div class="prediction-item">
+                        Expected Temperature Change: ${formatTemperatureChange(data.predictions[data.country])}
+                    </div>
+                    <div class="prediction-item">
+                        Confidence Level: <span class="${confidenceClass}">${data.confidence_level} (${data.confidence.toFixed(1)}%)</span>
+                        <div class="confidence-info">
+                            Note: This prediction is for ${yearsAhead} years in the future. Confidence decreases with time due to increasing uncertainty in long-term climate factors.
+                        </div>
+                    </div>
+                    <div class="data-quality">
+                        <div class="data-quality-item">
+                            Data Completeness: ${data.data_quality.completeness.toFixed(1)}%
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: ${data.data_quality.completeness}%"></div>
+                            </div>
+                        </div>
+                        <div class="data-quality-item">
+                            Temperature Stability: ${data.data_quality.stability.toFixed(1)}%
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: ${data.data_quality.stability}%"></div>
+                            </div>
+                        </div>
+                        <div class="data-quality-item">
+                            Available Data: ${data.data_quality.valid_data_points} out of ${data.data_quality.total_years} years
+                        </div>
+                    </div>
+                `;
+                document.getElementById('yearResult').innerHTML = html;
+            } catch (error) {
+                document.getElementById('yearResult').innerHTML = 'Error: Could not get prediction. Please try again.';
+            }
+            hideLoading();
+        }
+
+        // Classify country temperature change
+        async function classifyCountry() {
+            const country = document.getElementById('classifyCountrySelect').value;
+            const threshold = document.getElementById('threshold').value;
+            
+            if (!country) {
+                alert('Please select a country');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE_URL}/classify_country`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        country, 
+                        threshold: parseFloat(threshold) 
+                    })
+                });
+                const data = await response.json();
+                
+                const status = data.is_above_threshold ? 
+                    '<span class="text-danger">Above Threshold</span>' : 
+                    '<span class="text-success">Below Threshold</span>';
+                
+                const confidenceClass = `confidence-${data.confidence_level.toLowerCase()}`;
+                
+                const html = `
+                    <h6>Status for ${data.country}:</h6>
+                    <div class="prediction-item">
+                        Current Status: ${status}
+                    </div>
+                    <div class="prediction-item">
+                        Temperature Change: ${formatTemperatureChange(data.mean_temperature_change)}
+                    </div>
+                    <div class="prediction-item">
+                        Threshold: ${data.threshold}°C
+                    </div>
+                    <div class="prediction-item">
+                        Confidence Level: <span class="${confidenceClass}">${data.confidence_level} (${data.confidence.toFixed(1)}%)</span>
+                    </div>
+                    <div class="data-quality">
+                        <div class="data-quality-item">
+                            Data Completeness: ${data.data_quality.completeness.toFixed(1)}%
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: ${data.data_quality.completeness}%"></div>
+                            </div>
+                        </div>
+                        <div class="data-quality-item">
+                            Temperature Stability: ${data.data_quality.stability.toFixed(1)}%
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: ${data.data_quality.stability}%"></div>
+                            </div>
+                        </div>
+                        <div class="data-quality-item">
+                            Available Data: ${data.data_quality.valid_data_points} out of ${data.data_quality.total_years} years
+                        </div>
+                    </div>
+                `;
+                document.getElementById('classifyResult').innerHTML = html;
+            } catch (error) {
+                document.getElementById('classifyResult').innerHTML = 'Error: Could not get classification. Please try again.';
+            }
+            hideLoading();
+        }
+
+        // Load countries on page load
+        window.onload = getCountries;
+    </script>
+</body>
+</html> 

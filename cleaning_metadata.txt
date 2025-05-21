@@ -1,0 +1,5 @@
+cleaning_date: 2025-05-21
+original_source: FAO
+baseline_period: 1951-1980
+data_quality_notes: ['Temperature changes are relative to 1951-1980 baseline', 'Some countries may have insufficient data points', 'Extreme values have been flagged for review', 'Missing values have been filled using appropriate methods']
+validation_results: {'total_rows': 225, 'total_columns': 72, 'missing_values': 1492, 'duplicate_rows': 0, 'year_columns': ['F1961', 'F1962', 'F1963', 'F1964', 'F1965', 'F1966', 'F1967', 'F1968', 'F1969', 'F1970', 'F1971', 'F1972', 'F1973', 'F1974', 'F1975', 'F1976', 'F1977', 'F1978', 'F1979', 'F1980', 'F1981', 'F1982', 'F1983', 'F1984', 'F1985', 'F1986', 'F1987', 'F1988', 'F1989', 'F1990', 'F1991', 'F1992', 'F1993', 'F1994', 'F1995', 'F1996', 'F1997', 'F1998', 'F1999', 'F2000', 'F2001', 'F2002', 'F2003', 'F2004', 'F2005', 'F2006', 'F2007', 'F2008', 'F2009', 'F2010', 'F2011', 'F2012', 'F2013', 'F2014', 'F2015', 'F2016', 'F2017', 'F2018', 'F2019', 'F2020', 'F2021', 'F2022'], 'baseline_period': '1951-1980', 'data_source': 'FAO', 'last_updated': '2025-05-21'}
